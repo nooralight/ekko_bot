@@ -33,4 +33,13 @@ def delete_file_from_db(file_id):
     print("File deleted")
 
 
+def insert_into_vector(store_id):
+    new_store = Store_folder(
+        store_id = store_id,
+        created_at = datetime.now()
+    )
+    new_store.save()
+
+insert_into_vector("vs_joHKCuQfUT45GKH1ppZtqK7y")
+
     
