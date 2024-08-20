@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link rel="icon" type="image/png" href="{{ url_for('static', filename='/caption.png') }}"> -->
+    <title>Ekko - Training</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <style>
+        body{
+            background-color: #021a4d;
+        }
+        .button-container {
+        display: flex;
+        justify-content: start;
+        margin-top: 5px;
+        }
+
+        .button-container a {
+            margin-right: 30px; /* Adjust the margin as needed */
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .button-container a:hover {
+            transform: scale(1.1); /* Adjust the scale factor as needed */
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a href="{{ url_for('home') }}">
+                <img src="" width="100" height="37" alt="Ekko Chatbot">
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 text-center">
+                    
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-light text-dark" aria-current="page" href="{{ url_for('home') }}"><span>Dashboard </span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-light text-dark" href="{{ url_for('training') }}"> Training </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-light text-dark" href="{{ url_for('chat') }}"> Chat </a>
+                    </li>
+                    
+                    
+                </ul>
+                
+                <div class="d-flex">
+                    <a href="{{ url_for('logout') }}" class="btn btn-dark text-light">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="container container-fluid mt-1 mb-4">
+        
+        
+        {% if train %}
+        <div class="d-flex justify-content-center mt-3">
+            
+            <div class="card text-center">
+                <h5 class="card-header"> Training Instruction </h5> <h5>Assistant ID: <span style="color: darkorchid;">{{ train.assistant_id }}</span></h5>
+                <div class="container container-fluid mb-2">
+                    <div class="d-flex justify-content-end mt-1 mb-1">
+                        <a href="#" class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#editInstuction"><i class="bi bi-gear"></i> Edit Instruction </a>
+                    </div>
+                    <div class="modal fade" id="editInstuction" tabindex="-1" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Update Instruction</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="{{ url_for('edit_instruction') }}" method="post" id="edit_instruction_form">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <textarea class="form-control" aria-label="With textarea" id="edit_instruction" name="change_instruction">{{ train.instruction }}</textarea>
+                                            <span class="input-group-text">Instruction</span>
+                                        </div>
+                                        <small class="text-danger mb-1" id="new_instruction_error"></small>
+                                        <div class="d-flex justify-content-center text-center">
+                                            <button class="btn btn-sm btn-primary" type="submit" id="edit_submit">Save changes</button>
+                                        </div>
+
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    
+                                    <small>* By updating the instruction, previous instruction will be <b>Deleted</b></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body border-5">
+                        <h5 class="text-center"> Instruction</h5><hr>
+                        <div class="scrollable">
+                            <div class="card-text mb-3">
+                                {{ train.instruction }}
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                <h5 class="card-header"> Chatbot Data Files </h5>
+                <div class="card-body">
+                    <div class="d-flex justify-content-end mb-1">
+                        <a href="#" class="btn btn-sm btn-success" type="button" data-bs-toggle="modal" data-bs-target="#addNewFile"><i class="bi bi-folder-plus"></i> Add new File </a>
+                    </div>
+                    <div class="modal fade" id="addNewFile" tabindex="-1" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Add New File</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="d-flex justify-content-end mb-1">
+                                        <button type="button" class="btn btn-sm btn-danger" id="files_refresh"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+                                    </div>
+                                    <form action="{{ url_for('uploadnewFile') }}" method="post" id="new_file_form" enctype="multipart/form-data">
+                                        <div class="input-group input-group-sm mb-4">
+                                            <input type="file" class="form-control" id="add_new_file" name="new_file" required multiple>
+                                            <label class="input-group-text" for="inputGroupFile02">Data File</label>
+                                        </div>
+                                        <small class="text-danger mb-1" id="file_new_file_error"></small>
+                                        <div class="d-flex justify-content-center text-center">
+                                            <button class="btn btn-sm btn-primary" type="submit" id="add_new_submit">Save changes</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <small>* New file will be added into the existing training data</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="scrollable">
+                        <div class="row">
+                            {% for item in files.files %}
+                            {% for id , dict_file in item.items() %}
+                            <div class="col-sm-12 col-md-6 col-lg-6">
+                              <div class="card">
+                                <div class="card-body">
+                                    
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">File Name: <span><b>{{ dict_file.file_name }}</b></span></li>
+                                </ul>
+                                  <a href="{{ dict_file.file_url }}" download="training_file.pdf" class="btn btn-sm btn-primary"><i class="bi bi-cloud-arrow-down"></i> Check</a>
+                                  
+                                  <a href="{{ url_for('delete_file', file_id = id) }}" class="btn btn-sm btn-primary ml-2" > Delete</a>
+                                  
+                                </div>
+                              </div>
+                            </div>
+                            {% endfor %}
+                            {% endfor %}
+                            
+                          </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('edit_instruction_form');
+            const textarea = document.getElementById('edit_instruction');
+            const instructionError = document.getElementById('new_instruction_error');
+            const submitBtn = document.getElementById('edit_submit');
+    
+            // Function to check textarea length
+            function checkTextareaLength() {
+                const minLength = 5000;
+                const textareaValue = textarea.value.trim();
+    
+                if (textareaValue.length > minLength) {
+                    instructionError.textContent = 'Instruction should be less than ' + minLength + ' characters.';
+                    submitBtn.disabled = true;
+                } else {
+                    instructionError.textContent = '';
+                    submitBtn.disabled = false;
+                }
+            }
+    
+            // Event listener for textarea input
+            textarea.addEventListener('input', function () {
+                checkTextareaLength();
+            });
+    
+            // Event listener for form submission
+            form.addEventListener('submit', function (event) {
+                // Additional logic can be added here if needed
+                // For now, prevent the form submission if the textarea has more than 20 characters
+                if (textarea.value.trim().length > 2850) {
+                    event.preventDefault();
+                }
+            });
+        });
+    </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const fileForm = document.getElementById('new_file_form');
+        const fileInput = document.getElementById('add_new_file');
+        const fileError = document.getElementById('file_new_file_error');
+        const submitButton = document.getElementById('add_new_submit');
+        const refreshButton = document.getElementById('files_refresh');
+
+        // Function to check file format for the new file form
+        function checkNewFileFormat() {
+            const allowedFormats = ['.csv', '.docx', '.json', '.html', '.pdf', '.pptx', '.txt', '.xml', '.xlsx'];
+            const files = fileInput.files;
+
+            for (let i = 0; i < files.length; i++) {
+                const fileName = files[i].name.toLowerCase();
+                const isValidFormat = allowedFormats.some(format => fileName.endsWith(format));
+
+                if (!isValidFormat) {
+                    fileError.textContent = 'Invalid file format. Allowed formats: ' + allowedFormats.join(', ');
+                    submitButton.disabled = true;
+                    return;
+                }
+            }
+
+            fileError.textContent = '';
+            submitButton.disabled = false;
+        }
+
+        // Event listener for file input change
+        fileInput.addEventListener('change', function () {
+            checkNewFileFormat();
+        });
+
+        // Event listener for form submission (optional)
+        fileForm.addEventListener('submit', function (event) {
+            // You can add additional logic here if needed
+            // For example, preventing the form submission if the button is disabled
+            if (submitButton.disabled) {
+                event.preventDefault();
+            }
+        });
+
+        // Event listener for refresh button
+        refreshButton.addEventListener('click', function () {
+            fileForm.reset();
+            fileError.textContent = '';
+            submitButton.disabled = false;
+        });
+    });
+</script>
+
+
+    
+    
+    <script>
+        var myModal = new bootstrap.Modal(document.getElementById('staticBackdrop'),document.getElementById('addNewFile'));
+        // Initialize the second modal
+        var addNewFileModal = new bootstrap.Modal(document.getElementById('addNewFile'));
+
+        var editInstruction = new bootstrap.Modal(document.getElementById('editInstruction'));
+    </script>
+    
+
+      <!-- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script> -->
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+
+</body>
+</html>
